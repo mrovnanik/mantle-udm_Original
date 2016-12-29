@@ -127,6 +127,8 @@ along with this software (see the LICENSE.md file). If not, see
             <key-map field-name="assetId"/></relationship>
         <relationship type="many" related="mantle.product.asset.AssetDepreciation" short-alias="depreciations">
             <key-map field-name="assetId"/></relationship>
+        <relationship type="many" related="mantle.product.asset.AssetGlAppl" short-alias="glAppls">
+            <key-map field-name="assetId"/></relationship>
         <relationship type="many" related="mantle.product.asset.AssetIdentification" short-alias="identifications">
             <key-map field-name="assetId"/></relationship>
         <relationship type="many" related="mantle.product.asset.AssetPartyAssignment" short-alias="partyAssignments">
@@ -368,12 +370,20 @@ along with this software (see the LICENSE.md file). If not, see
             <!-- Asset Identification Type -->
             <moqui.basic.EnumerationType description="Asset Identification Type" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="Manufacturer Serial Number" enumId="AitMfgSerial" enumTypeId="AssetIdentificationType"/>
+            <moqui.basic.Enumeration description="Media Access Control (MAC) Address" enumId="AitMac" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="Vendor Inventory/Tracking" enumId="AitVendorInventory" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="Tracking Label Number" enumId="AitTrackingLabel" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="Vehicle Identification Number (VIN)" enumId="AitVin" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="Gas Card Number" enumId="AitGasCard" enumTypeId="AssetIdentificationType"/>
             <moqui.basic.Enumeration description="License Plate Number" enumId="AitLicensePlate" enumTypeId="AssetIdentificationType"/>
         </seed-data>
+    </entity>
+    <entity entity-name="AssetGlAppl" package="mantle.product.asset">
+        <description>Used to specify relevant GL Accounts for an Asset (expense, revenue, etc); not related to posting conf</description>
+        <field name="assetId" type="id" is-pk="true"/>
+        <field name="glAccountId" type="id" is-pk="true"/>
+        <relationship type="one" related="mantle.product.asset.Asset" short-alias="asset"/>
+        <relationship type="one" related="mantle.ledger.account.GlAccount" short-alias="glAccount"/>
     </entity>
     <entity entity-name="AssetPartyAssignment" package="mantle.product.asset" cache="never">
         <field name="assetId" type="id" is-pk="true"/>
@@ -813,4 +823,13 @@ along with this software (see the LICENSE.md file). If not, see
             <moqui.basic.Enumeration enumId="ArjOverShipped" description="Over Shipped" enumTypeId="RejectionReason"/>
         </seed-data>
     </entity>
+
+    <!-- ========================================================= -->
+    <!-- moqui.basic.print -->
+    <!-- ========================================================= -->
+
+    <extend-entity entity-name="NetworkPrinter" package="moqui.basic.print">
+        <field name="assetId" type="id"/>
+        <relationship type="one" related="mantle.product.asset.Asset"/>
+    </extend-entity>
 </entities>

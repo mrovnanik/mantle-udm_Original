@@ -35,9 +35,7 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="accountCode" type="text-medium" default="glAccountId"/>
         <field name="accountName" type="text-medium"/>
         <field name="description" type="text-medium"/>
-        <field name="productId" type="id"/>
-        <field name="externalId" type="id"><description>ID of the account in an external system where the accounts
-            are imported/exported</description></field>
+        <field name="externalId" type="id"><description>ID of the account in an external system where the accounts are imported/exported</description></field>
         <field name="disallowPosting" type="text-indicator"/>
 
         <relationship type="one" title="Parent" related="mantle.ledger.account.GlAccount">
@@ -327,6 +325,7 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="glAccountId" type="id" is-pk="true"/>
         <field name="organizationPartyId" type="id" is-pk="true"/>
         <field name="postedBalance" type="currency-amount"/>
+        <field name="balanceLastUpdated" type="date-time"/>
         <relationship type="one" related="mantle.ledger.account.GlAccount"/>
         <relationship type="one" title="Organization" related="mantle.party.Party">
             <key-map field-name="organizationPartyId"/></relationship>
@@ -339,6 +338,7 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="postedCredits" type="currency-amount"/>
         <field name="beginningBalance" type="currency-amount"/>
         <field name="endingBalance" type="currency-amount"/>
+        <field name="balanceLastUpdated" type="date-time"/>
         <relationship type="one" related="mantle.ledger.account.GlAccount"/>
         <relationship type="one" title="Organization" related="mantle.party.Party">
             <key-map field-name="organizationPartyId"/></relationship>
@@ -366,6 +366,13 @@ along with this software (see the LICENSE.md file). If not, see
             <description>(enumTypeId = BUDGET_ITEM_TYPE)</description>
             <key-map field-name="budgetItemTypeEnumId"/>
         </relationship>
+    </entity>
+    <entity entity-name="GlAccountEnumAppl" package="mantle.ledger.account">
+        <description>Used to specify relevant GL Accounts for an Enumeration (expense, revenue, etc); not related to posting conf</description>
+        <field name="glAccountId" type="id" is-pk="true"/>
+        <field name="enumId" type="id" is-pk="true"/>
+        <relationship type="one" related="mantle.ledger.account.GlAccount" short-alias="glAccount"/>
+        <relationship type="one" related="moqui.basic.Enumeration" short-alias="enum"/>
     </entity>
 
     <!-- ========================================================= -->
@@ -649,6 +656,8 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="organizationPartyId" type="id" is-pk="true"/>
         <field name="fiscalYearStartMonth" type="number-integer"/>
         <field name="fiscalYearStartDay" type="number-integer"/>
+        <field name="realTimeGlSummary" type="text-indicator">
+            <description>Defaults to N. If set to Y GlAccountOrganization and GlAccountOrgTimePeriod are updated with each AcctgTrans post.</description></field>
         <field name="hourlyTimePeriodTypeId" type="id"/>
         <field name="salaryTimePeriodTypeId" type="id"/>
         <field name="taxFormEnumId" type="id"/>
@@ -664,14 +673,12 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="orderIdPrefix" type="text-short"/>
         <field name="orderLastNumber" type="number-integer"/>
         <field name="refundPaymentMethodId" type="id"/>
-        <field name="errorGlJournalId" type="id">
-            <description>
-                Journal to which all the failed automatic transaction are assigned.
-                If the error journal is set, if the GL posting fails for some reason the triggering operation
-                (finalizing an invoice or payment or whatever) would NOT roll back, instead the partial GL post would be
-                placed into the error journal.
-            </description>
-        </field>
+        <field name="errorGlJournalId" type="id"><description>
+            Journal to which all the failed automatic transaction are assigned.
+            If the error journal is set, if the GL posting fails for some reason the triggering operation
+            (finalizing an invoice or payment or whatever) would NOT roll back, instead the partial GL post would be
+            placed into the error journal.
+        </description></field>
         <field name="glAccountCodeMask" type="text-short"/>
 
         <relationship type="one" title="Organization" related="mantle.party.Party">
@@ -710,14 +717,14 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- Tax Classification -->
             <moqui.basic.EnumerationType description="Tax Classification" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="Individual, Sole Proprietor, Single-member LLC" enumId="TxcIndividual" sequenceNum="1" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="C Corporation" enumId="TxcCCorp" sequenceNum="2" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="S Corporation" enumId="TxcSCorp" sequenceNum="3" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="Partnership" enumId="TxcPartnership" sequenceNum="4" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="Trust/Estate" enumId="TxcTrustEstate" sequenceNum="5" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="LLC as S Corp" enumId="TxcLlcSCorp" sequenceNum="6" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="LLC as C Corp" enumId="TxcLlcCCorp" sequenceNum="7" enumTypeId="TaxClassification"/>
-            <moqui.basic.Enumeration description="LLC as Partnership" enumId="TxcLlcPartnership" sequenceNum="8" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - Individual, Sole Proprietor, Single-member LLC" enumId="TxcIndividual" sequenceNum="1" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - C Corporation" enumId="TxcCCorp" sequenceNum="2" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - S Corporation" enumId="TxcSCorp" sequenceNum="3" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - Partnership" enumId="TxcPartnership" sequenceNum="4" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - Trust/Estate" enumId="TxcTrustEstate" sequenceNum="5" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - LLC as S Corp" enumId="TxcLlcSCorp" sequenceNum="6" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - LLC as C Corp" enumId="TxcLlcCCorp" sequenceNum="7" enumTypeId="TaxClassification"/>
+            <moqui.basic.Enumeration description="USA - LLC as Partnership" enumId="TxcLlcPartnership" sequenceNum="8" enumTypeId="TaxClassification"/>
             <moqui.basic.Enumeration description="Other" enumId="TxcOther" sequenceNum="9" enumTypeId="TaxClassification"/>
 
             <!-- Cost Of Goods Sold methods -->
