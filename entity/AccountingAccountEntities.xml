@@ -451,6 +451,7 @@ along with this software (see the LICENSE.md file). If not, see
         <field name="contentLocation" type="text-medium"/>
         <field name="contentTypeEnumId" type="id"/>
         <field name="description" type="text-long"/>
+        <field name="displayName" type="text-medium"/>
         <field name="contentDate" type="date-time" default="ec.user.nowTimestamp"/>
         <field name="userId" type="id" default="ec.user.userId"/>
         <relationship type="one" related-entity-name="mantle.account.invoice.Invoice"/>
