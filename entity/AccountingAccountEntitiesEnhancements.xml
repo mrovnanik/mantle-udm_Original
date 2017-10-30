@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This software is in the public domain under CC0 1.0 Universal plus a
+Grant of Patent License.
+
+To the extent possible under law, the author(s) have dedicated all
+copyright and related and neighboring rights to this software to the
+public domain worldwide. This software is distributed without any
+warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication
+along with this software (see the LICENSE.md file). If not, see
+<http://creativecommons.org/publicdomain/zero/1.0/>.
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-2.0.xsd">
+    <!-- ========================================================= -->
+    <!--  - mantle.account.invoice EXTENSION-->
+    <!-- ========================================================= -->
+    <extend-entity entity-name="Invoice" package="mantle.account.invoice" cache="never">
+        <field name="manualCategory" type="text-long"/>
+        <field name="acctBookingResultEnumId" type="id"/>
+        <field name="accountedFor" type="text-short"/>
+        <field name="accountedBy" type="text-medium"/>
+        <field name="accountedOn" type="date-time"/>
+        <field name="documentNumber" type="text-short"/>
+        <field name="relatedDocumentId" type="id"/>
+        <field name="warehouseMovementRef" type="text-short"/>
+
+        <relationship type="one" title="AcctBookingResult" related-entity-name="moqui.basic.Enumeration">
+            <key-map field-name="acctBookingResultEnumId"/></relationship>
+
+        <seed-data>
+
+            <!-- Invoice Accounted for Result -->
+            <moqui.basic.EnumerationType description="Accounting Booking Result" enumTypeId="AcctBookingResult"/>
+            <moqui.basic.Enumeration enumId="Booked" description="Booked" enumTypeId="AcctBookingResult"/>
+            <moqui.basic.Enumeration enumId="BookingCancelled" description="Booking Cancelled" enumTypeId="AcctBookingResult"/>
+            <moqui.basic.Enumeration enumId="BookingNotSet" description="Booking Not Set" enumTypeId="AcctBookingResult"/>
+
+            <!-- This will be my terminal status >>> CLOSED -->
+            <moqui.basic.StatusItem description="Closed" sequenceNum="15" statusId="InvoiceClosed" statusTypeId="Invoice"/>
+
+            <!-- This will be my terminal status transition >>> CHANGE TO CLOSED -->
+            <moqui.basic.StatusFlowTransition statusFlowId="Default" statusId="InvoicePmtSent" toStatusId="InvoiceClosed" transitionName="Close Invoice"/>
+        </seed-data>
+    </extend-entity>
+
+    <extend-entity entity-name="Payment" package="mantle.account.payment" cache="never">
+        <!-- debit account fields -->
+        <field name="dbtParty" type="text-medium"/>
+        <field name="dbtIBAN" type="text-medium"/>
+        <field name="dbtBIC" type="text-medium"/>
+        <field name="dbtBank" type="text-medium"/>
+        <field name="dbtAddressStreet" type="text-medium"/>
+        <field name="dbtAddressCity" type="text-medium"/>
+        <field name="dbtAddressZIP" type="text-medium"/>
+        <field name="dbtAddressCountry" type="text-medium"/>
+
+        <!-- credit account fields -->
+        <field name="cdtParty" type="text-medium"/>
+        <field name="cdtPartyStreet" type="text-medium"/>
+        <field name="cdtPartyNumber" type="text-medium"/>
+        <field name="cdtPartyCity" type="text-medium"/>
+        <field name="cdtPartyZIP" type="text-medium"/>
+        <field name="cdtPartyCountry" type="text-medium"/>
+
+        <field name="cdtIBAN" type="text-medium"/>
+        <field name="cdtBIC" type="text-medium"/>
+        <field name="cdtBank" type="text-medium"/>
+        <field name="cdtAddressStreet" type="text-medium"/>
+        <field name="cdtAddressCity" type="text-medium"/>
+        <field name="cdtAddressZIP" type="text-medium"/>
+        <field name="cdtAddressCountry" type="text-medium"/>
+
+        <!-- payment fields -->
+        <field name="constantSymbol" type="text-medium"/>
+        <field name="specificSymbol" type="text-medium"/>
+        <field name="variableSymbol" type="text-medium"/>
+    </extend-entity>
+</entities>
