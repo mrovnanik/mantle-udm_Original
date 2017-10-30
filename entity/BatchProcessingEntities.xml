@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This software is in the public domain under CC0 1.0 Universal plus a
+Grant of Patent License.
+
+To the extent possible under law, the author(s) have dedicated all
+copyright and related and neighboring rights to this software to the
+public domain worldwide. This software is distributed without any
+warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication
+along with this software (see the LICENSE.md file). If not, see
+<http://creativecommons.org/publicdomain/zero/1.0/>.
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-2.0.xsd">
+    <!-- ========================================================= -->
+    <!-- mantle.batch.BatchDefinition -->
+    <!-- ========================================================= -->
+    <entity entity-name="BatchDefinition" package="mantle.batch" cache="never">
+        <field name="batchDefinitionId" type="id" is-pk="true"/>
+        <field name="batchProcessingResultEnumId" type="id"/>
+        <field name="createdDate" type="date-time" default="ec.user.nowTimestamp"/>
+        <field name="key" type="id-long"/>
+        <field name="batchLabel" type="text-medium"/>
+        <field name="visitId" type="id"/>
+        <field name="userId" type="id"/>
+
+        <index name="BATCH_KEY_IDX">
+            <index-field name="key"/>
+        </index>
+
+        <relationship type="one" title="BatchProcessingResult" related="moqui.basic.Enumeration">
+            <key-map field-name="batchProcessingResultEnumId"/></relationship>
+
+        <relationship type="one-nofk" related="moqui.server.Visit"/>
+        <relationship type="one-nofk" related="moqui.security.UserAccount"/>
+
+        <seed-data>
+            <!-- Batch Processing result -->
+            <moqui.basic.EnumerationType description="Batch Processing Result" enumTypeId="BatchProcessingResult"/>
+            <moqui.basic.Enumeration enumId="BatchProcessingNotSet" description="Batch Processing Not Set" enumTypeId="BatchProcessingResult"/>
+            <moqui.basic.Enumeration enumId="BatchProcessingOpened" description="Batch Processing Opened" enumTypeId="BatchProcessingResult"/>
+            <moqui.basic.Enumeration enumId="BatchProcessingClosed" description="Batch Processing Closed" enumTypeId="BatchProcessingResult"/>
+            <moqui.basic.Enumeration enumId="BatchProcessingCancelled" description="Batch Processing Cancelled" enumTypeId="BatchProcessingResult"/>
+        </seed-data>
+    </entity>
+
+    <entity entity-name="BatchItem" package="mantle.batch">
+        <field name="batchItemId" type="id" is-pk="true"/>
+        <field name="batchDefinitionId" type="id"/>
+        <field name="itemId" type="id-long"/>
+
+        <relationship type="one" related="mantle.batch.BatchDefinition"/>
+
+        <index name="BATCH_ITEMS_UNIQUE_IDX">
+            <index-field name="batchItemId"/>
+            <index-field name="itemId"/>
+        </index>
+    </entity>
+</entities>
